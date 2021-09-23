@@ -168,7 +168,6 @@
 import { mapActions } from 'vuex';
 import { formatFilters, ITEMS_PER_PAGE } from '@/helpers/utils';
 import { getPoolLiquidity } from '@/helpers/price';
-import { chunk } from 'chunk';
 
 export default {
   props: ['query', 'title'],

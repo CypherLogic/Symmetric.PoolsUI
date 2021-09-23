@@ -152,11 +152,27 @@ const mutations = {
     console.debug('GET_BLOCK_SUCCESS', blockNumber);
   }
 };
-
+// show Valora QR CODE
 const actions = {
   login: async ({ dispatch, commit }, connector = 'injected') => {
+    console.log('LOGIN:::');
+    console.log(connector);
     commit('SET', { authLoading: true });
     auth = getInstance();
+    console.log(auth);
+    await auth.login(connector);
+    if (auth.provider) {
+      auth.web3 = new Web3Provider(auth.provider);
+      await dispatch('loadWeb3');
+    }
+    commit('SET', { authLoading: false });
+  },
+  loginValora: async ({ dispatch, commit }, connector = 'injected') => {
+    console.log('loginValora:::');
+    console.log(connector);
+    commit('SET', { authLoading: true });
+    auth = getInstance();
+    console.log(auth);
     await auth.login(connector);
     if (auth.provider) {
       auth.web3 = new Web3Provider(auth.provider);

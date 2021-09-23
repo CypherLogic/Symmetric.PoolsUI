@@ -87,8 +87,9 @@
       </div>
     </div>
     <div class="ml-6 !important" style="color:white; text-align: center;">
-          Caution: Investments carry risk. Only add liquidity that you can afford to lose.
-        </div>
+      Caution: Investments carry risk. Only add liquidity that you can afford to
+      lose.
+    </div>
     <portal to="modal">
       <ModalAccount
         :open="modalOpen.account"
@@ -100,20 +101,30 @@
         @close="modalOpen.activity = false"
         @login="handleLogin"
       />
+      <ModalValoraQRCode
+        :open="modalOpen.valoraQRCode"
+        @close="modalOpen.valoraQRCode = false"
+        @login="handleLoginValora"
+      />
     </portal>
   </nav>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
+import ModalValoraQRCode from '../components/Modal/ValoraQRCode';
 
 export default {
+  components: {
+    ModalValoraQRCode
+  },
   data() {
     return {
       loading: false,
       modalOpen: {
         account: false,
-        activity: false
+        activity: false,
+        valoraQRCode: false
       }
     };
   },
@@ -131,6 +142,26 @@ export default {
     ...mapActions(['toggleSidebar']),
     ...mapActions(['login']),
     async handleLogin(connector) {
+      console.log(`HANDLE LOGIN TOPNAVE: ${connector}`);
+      if (connector === 'valora') {
+        // open Valora QR Code
+        console.log('opening valora QR');
+        this.modalOpen.valoraQRCode = true;
+      } else {
+        this.modalOpen.account = false;
+        this.loading = true;
+        await this.login(connector);
+      }
+
+      this.loading = false;
+    },
+    async handleLoginValora(connector) {
+      console.log(`HANDLE LOGIN: ${connector}`);
+      if (connector === ' valora') {
+        // open Valora QR Code
+        this.modalOpen.valoraQRCode = true;
+        return;
+      }
       this.modalOpen.account = false;
       this.loading = true;
       await this.login(connector);
@@ -138,90 +169,103 @@ export default {
     },
 
     async switchNetwork() {
-            if (!window.ethereum) {
-                console.error('No injected wallet found.');
-                return;
-            }
-            switch (this.config.network) {
-            case "xdai":
-                window.ethereum.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [
-                        {
-                            'chainId': '0x64',
-                            'chainName': 'xDai',
-                            'rpcUrls': ['https://rpc.xdaichain.com'],
-                            'nativeCurrency': {
-                                'name': 'xDai Chain xDai',
-                                'symbol': 'xDai',
-                                'decimals': 18,
-                            },
-                            'blockExplorerUrls': ['https://blockscout.com/poa/xdai'],
-                        },
-                    ],
-                    id: 1,
-                }, console.log);
-                break;
-            case "celo":
-                window.ethereum.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [
-                        {
-                            'chainId': '0xa4ec',
-                            'chainName': 'Celo',
-                            'rpcUrls': ['https://forno.celo.org'],
-                            'nativeCurrency': {
-                                'name': 'Celo',
-                                'symbol': 'CELO',
-                                'decimals': 18,
-                            },
-                            'blockExplorerUrls': ['https://explorer.celo.org'],
-                        },
-                    ],
-                    id: 1,
-                }, console.log);
-                break;
-            case "alfajores":
-                window.ethereum.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [
-                        {
-                            'chainId': '0xaef3',
-                            'chainName': 'Celo (Alfajores Testnet)',
-                            'rpcUrls': ['https://alfajores-forno.celo-testnet.org'],
-                            'nativeCurrency': {
-                                'name': 'Celo',
-                                'symbol': 'CELO',
-                                'decimals': 18,
-                            },
-                            'blockExplorerUrls': ['https://alfajores-blockscout.celo-testnet.org'],
-                        },
-                    ],
-                    id: 1,
-                }, console.log);
-                break;
-            case "sokol":
-                window.ethereum.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [
-                        {
-                            'chainId': '0x4d',
-                            'chainName': 'Sokol Testnet',
-                            'rpcUrls': ['https://sokol.poa.network'],
-                            'nativeCurrency': {
-                                'name': 'SPOA',
-                                'symbol': 'SPOA',
-                                'decimals': 18,
-                            },
-                            'blockExplorerUrls': ['https://blockscout.com/poa/sokol'],
-                        },
-                    ],
-                    id: 1,
-                }, console.log);
-                break;
-            }
-        }
-
+      if (!window.ethereum) {
+        console.error('No injected wallet found.');
+        return;
+      }
+      switch (this.config.network) {
+        case 'xdai':
+          window.ethereum.request(
+            {
+              method: 'wallet_addEthereumChain',
+              params: [
+                {
+                  chainId: '0x64',
+                  chainName: 'xDai',
+                  rpcUrls: ['https://rpc.xdaichain.com'],
+                  nativeCurrency: {
+                    name: 'xDai Chain xDai',
+                    symbol: 'xDai',
+                    decimals: 18
+                  },
+                  blockExplorerUrls: ['https://blockscout.com/poa/xdai']
+                }
+              ],
+              id: 1
+            },
+            console.log
+          );
+          break;
+        case 'celo':
+          window.ethereum.request(
+            {
+              method: 'wallet_addEthereumChain',
+              params: [
+                {
+                  chainId: '0xa4ec',
+                  chainName: 'Celo',
+                  rpcUrls: ['https://forno.celo.org'],
+                  nativeCurrency: {
+                    name: 'Celo',
+                    symbol: 'CELO',
+                    decimals: 18
+                  },
+                  blockExplorerUrls: ['https://explorer.celo.org']
+                }
+              ],
+              id: 1
+            },
+            console.log
+          );
+          break;
+        case 'alfajores':
+          window.ethereum.request(
+            {
+              method: 'wallet_addEthereumChain',
+              params: [
+                {
+                  chainId: '0xaef3',
+                  chainName: 'Celo (Alfajores Testnet)',
+                  rpcUrls: ['https://alfajores-forno.celo-testnet.org'],
+                  nativeCurrency: {
+                    name: 'Celo',
+                    symbol: 'CELO',
+                    decimals: 18
+                  },
+                  blockExplorerUrls: [
+                    'https://alfajores-blockscout.celo-testnet.org'
+                  ]
+                }
+              ],
+              id: 1
+            },
+            console.log
+          );
+          break;
+        case 'sokol':
+          window.ethereum.request(
+            {
+              method: 'wallet_addEthereumChain',
+              params: [
+                {
+                  chainId: '0x4d',
+                  chainName: 'Sokol Testnet',
+                  rpcUrls: ['https://sokol.poa.network'],
+                  nativeCurrency: {
+                    name: 'SPOA',
+                    symbol: 'SPOA',
+                    decimals: 18
+                  },
+                  blockExplorerUrls: ['https://blockscout.com/poa/sokol']
+                }
+              ],
+              id: 1
+            },
+            console.log
+          );
+          break;
+      }
+    }
   }
 };
 </script>

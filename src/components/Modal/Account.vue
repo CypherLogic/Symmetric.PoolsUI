@@ -9,7 +9,7 @@
           @click="$emit('login', connector.id)"
           target="_blank"
           class="mb-2 d-block"
-        >
+        > {{ connector.id }}
           <UiButton class="width-full v-align-middle">
             <img
               :src="
